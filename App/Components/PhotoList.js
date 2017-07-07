@@ -1,13 +1,15 @@
 'use strict';
 import React, { Component } from 'react'
 import {
-	Image,
 	ListView,
 	StyleSheet,
 	Text,
 	TouchableHighlight,
 	View,
 } from 'react-native';
+
+import Image from 'react-native-image-progress';
+import Progress from 'react-native-progress';
 
 class PhotoList extends Component {
 		static navigationOptions = {
@@ -31,6 +33,7 @@ class PhotoList extends Component {
 		  <View style={styles.photoContainer}>
 			<TouchableHighlight onPress={() => this.openPhoto(rowData)} underlayColor="transparent">
 			  <Image
+				indicator={Progress}
 				source={{uri: uri}}
 				style={{width: this.state.thumbnailSize, height: this.state.thumbnailSize}}
 			  />
@@ -42,6 +45,7 @@ class PhotoList extends Component {
 	render() {
 		return (
 			<ListView
+				enableEmptySections={true}
 				dataSource={this.state.dataSource}
 				renderRow={this.renderPhoto.bind(this)}
 				contentContainerStyle={styles.list}

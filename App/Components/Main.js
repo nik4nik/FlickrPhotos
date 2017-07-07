@@ -3,35 +3,41 @@ import React from 'react';
 import {
 	ActivityIndicator,
 	AppRegistry,
+	AsyncStorage,
 	Image,
 	ListView,
-	Slider,
 	StyleSheet,
+	Slider,
 	Text,
 	TextInput,
 	TouchableHighlight,
 	View,
 } from 'react-native';
+
 import Dimensions from 'Dimensions';
 import { StackNavigator } from 'react-navigation';
 import PhotoList from './PhotoList';
 import Photo from './Photo';
-import Slider1 from './Slider1';
 import {fetchSearchResults} from '../Utils/FlickrInterface';
 
 class Main extends React.Component{
+	
   constructor(props) {
 	super(props);
 	this.state = {
 		dataSource: new ListView.DataSource({
 			rowHasChanged: (row1, row2) => row1 !== row2}),
-		slideCompletionValue: 1,
-		slideCompletionCount: 1,
+		slideValue: 1,
 		isLoading: false,
 		photoInfo: {},
 		searchedTag: '',
 		error: false
 	}
+	
+	// Retrieve the last state
+	AsyncStorage.getItem("searchedTag").then((value) => { this.setState({"searchedTag": value}); }).done();
+	AsyncStorage.getItem("slideValue").then((value) => { this.setState({"slideValue": +value}); }).done();
+
   }
   _handleChange(e){
 	this.setState({ searchedTag: e.nativeEvent.text });
@@ -50,7 +56,7 @@ class Main extends React.Component{
 			error: false
 		});
 		var dim = Dimensions.get('window').width,
-			idx = this.state.slideCompletionValue - 1;
+			idx = this.state.slideValue - 1;
 		this.props.navigation.navigate('Res', {
 			photos : res.photos.photo,
 			thumbnailSize : [dim/1.1, dim/2.2, dim/3.3, dim/4.5, dim/5.8][idx]
@@ -59,9 +65,9 @@ class Main extends React.Component{
   }
   _fetchData() {
 	if (!this.state.searchedTag) return;
-	this.setState({
-		isLoading: true
-	});
+	this.setState({	isLoading: true	});
+	AsyncStorage.setItem("searchedTag", this.state.searchedTag);
+	AsyncStorage.setItem("slideValue",  String(this.state.slideValue));
 	
 	const searchParams = {
 			contentType: //this.state.searchOptions.contentType,
@@ -71,7 +77,6 @@ class Main extends React.Component{
 					screenshots: false,
 				},
 			isCommons: false, //this.state.searchOptions.isCommons,
-			//isGetty: this.state.searchOptions.isGetty,
 			page: 1 //this.state.page,
 			//sortOrder: this.state.searchOptions.sortOrder,
 	};
@@ -105,16 +110,19 @@ class Main extends React.Component{
 				value={this.state.searchedTag}
 				onChange={this._handleChange.bind(this)}
 				onEndEditing={this._fetchData.bind(this)}				
-
-				/>
+			/>
 			{showErr}
 			<View style={{ flexDirection: 'row' }}>
 				<Text style={styles.label}>Columns:</Text>
-				<Slider1 style={styles.slider}
-				{...this.props}
-				onSlidingComplete={(value) => this.setState({
-					slideCompletionValue: value,
-					slideCompletionCount: this.state.slideCompletionCount + 1})} />
+				<Slider
+				 style={{ width: 250 }}
+				 step={1}
+				 minimumValue={1}
+				 maximumValue={5}
+				 value={this.state.slideValue}
+				 onValueChange={val => this.setState({ slideValue: val })}
+				/>
+				<Text style={styles.welcome}>{this.state.slideValue}</Text>
 			</View>
 			<TouchableHighlight
 				onPress={this.onSearchPressed.bind(this)}
@@ -153,9 +161,6 @@ var styles = StyleSheet.create({
 	marginRight: 5,
 	fontSize: 23,
 	color: 'white'
-  },
-  slider: {
-	width: 250
   },
   title: {
 	marginBottom: 20,

@@ -2,8 +2,6 @@ package com.flickrphotos;
 
 import com.facebook.react.ReactActivity;
 
-import android.os.Bundle;
-
 public class MainActivity extends ReactActivity {
 
     /**
@@ -14,10 +12,4 @@ public class MainActivity extends ReactActivity {
     protected String getMainComponentName() {
         return "FlickrPhotos";
     }
-
-	protected void onCreate(Bundle savedInstanceState) {
-    	// Make sure this is before calling super.onCreate
-    	//setTheme(R.style.mainAppTheme);
-    	super.onCreate(savedInstanceState);
-}
 }
